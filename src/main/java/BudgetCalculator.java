@@ -1,7 +1,6 @@
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +66,7 @@ public class BudgetCalculator {
     public Map<String, BigDecimal> totalByCategoryThroughDate(
             List<Expense> expenses,
             LocalDate date) {
-
+        // Должен возвращать суммы по каждой категории с начала месяца по указанную дату включительно
         LocalDate startOfMonth = date.withDayOfMonth(1);
 
         Map<String, BigDecimal> totalsByCategory = new HashMap<>();
@@ -84,5 +83,26 @@ public class BudgetCalculator {
             }
         }
         return totalsByCategory;
+    }
+
+    public BigDecimal mandatorySpentThroughDate(List<Expense> expenses, LocalDate date) {
+        List<Expense> mandatoryExpenses = expenses.stream().filter(Expense::mandatory).toList();
+        return totalSpentThroughDate(mandatoryExpenses, date);
+    }
+
+    public BigDecimal availableAtStartOfDay(
+            BigDecimal monthlyBudget,
+            List<Expense> expenses,
+            LocalDate date) {
+        // Показать доступную сумму на начало дня, метод использует вчерашнюю дату только со второго числа месяца
+
+        BigDecimal plannedAmount = plannedThroughDate(monthlyBudget, date);
+
+        if (date.getDayOfMonth() == 1) {
+            return plannedAmount;
+        }
+
+        BigDecimal spentBeforeToday = totalSpentThroughDate(expenses, date.minusDays(1));
+        return plannedAmount.subtract(spentBeforeToday);
     }
 }
