@@ -1,34 +1,33 @@
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+
+        Expense expense1 = new Expense(LocalDate.of(2026, 11, 1), new BigDecimal("1000"), "Еда", true);
+        Expense expense2 = new Expense(LocalDate.of(2026, 11, 2), new BigDecimal("300"), "Еда", false);
+        Expense expense3 = new Expense(LocalDate.of(2026, 11, 2), new BigDecimal("1000"), "Кино", false);
+        Expense expense4 = new Expense(LocalDate.of(2026, 11, 3), new BigDecimal("500"), "Еда", false);
+        Expense expense5 = new Expense(LocalDate.of(2025, 11, 1), new BigDecimal("900"), "Кино", false);
+        List<Expense> expenses = new ArrayList<>();
+        expenses.add(expense1);
+        expenses.add(expense2);
+        expenses.add(expense3);
+        expenses.add(expense4);
+        expenses.add(expense5);
+
+
         BudgetCalculator budgetCalculator = new BudgetCalculator();
+        LocalDate date = LocalDate.of(2026, 11, 2);
+        List<Expense> emptyList = new ArrayList<>();
 
-        YearMonth november = YearMonth.of(2026, 11);
-        BigDecimal bigDecimaNov = budgetCalculator.dailyLimit(new BigDecimal("30000"), november);
-        System.out.println(bigDecimaNov);
+        Map<String, BigDecimal> stringBigDecimalMap = budgetCalculator.totalByCategoryThroughDate(expenses, date);
+        stringBigDecimalMap.forEach((key, value) -> System.out.println(key + ": " + value));
 
-        LocalDate localDate1 = LocalDate.of(2026, 11, 2);
-        BigDecimal bigDecimal1 = budgetCalculator.plannedThroughDate(new BigDecimal("30000"), localDate1);
-        System.out.println(bigDecimal1);
-
-        System.out.println(
-                budgetCalculator.balanceThroughDate(new BigDecimal("30000"),
-                        localDate1,
-                        new BigDecimal("2300")));
-
-        YearMonth february = YearMonth.of(2028, 2);
-        BigDecimal bigDecimaFeb = budgetCalculator.dailyLimit(new BigDecimal("29000"), february);
-        System.out.println(bigDecimaFeb);
-
-        LocalDate localDate2 = LocalDate.of(2027, 1, 31);
-        BigDecimal bigDecimal2 = budgetCalculator.plannedThroughDate(new BigDecimal("10000"), localDate2);
-        System.out.println(bigDecimal2);
-
-        YearMonth january = YearMonth.of(2027, 1);
-        BigDecimal jan = budgetCalculator.dailyLimit(new BigDecimal("10000"), january);
-        System.out.println(jan);
+        Map<String, BigDecimal> stringBigDecimalMapEmpty = budgetCalculator.totalByCategoryThroughDate(emptyList, date);
+        System.out.println(stringBigDecimalMapEmpty);
     }
 }
