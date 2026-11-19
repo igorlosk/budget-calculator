@@ -78,4 +78,9 @@ class BudgetCalculatorTest {
         assertEquals(new BigDecimal("2000.00"), calculator.availableAtStartOfDay(budget, expenses, november2));
         assertEquals(new BigDecimal("2300.00"), calculator.availableAtStartOfDay(budget, expenses, november3));
     }
+
+    @Test
+    void dailySummaryAddsAllExpensesOnSelectedDate(){
+
+    }
 }

@@ -105,4 +105,30 @@ public class BudgetCalculator {
         BigDecimal spentBeforeToday = totalSpentThroughDate(expenses, date.minusDays(1));
         return plannedAmount.subtract(spentBeforeToday);
     }
+
+    public DailyBudgetSummary dailySummary(
+            BigDecimal monthlyBudget,
+            List<Expense> expenses,
+            LocalDate date) {
+
+        BigDecimal spentToday = BigDecimal.ZERO;
+        for (Expense expense : expenses) {
+            if (expense.date().equals(date)) {
+                spentToday = spentToday.add(expense.amount());
+            }
+        }
+
+        BigDecimal spentThroughDate = totalSpentThroughDate(expenses, date);
+        BigDecimal availableAtStart = availableAtStartOfDay(monthlyBudget, expenses, date);
+        BigDecimal balance = balanceThroughDate(monthlyBudget, date, spentThroughDate);
+        BigDecimal remainingBudget = monthlyBudget.subtract(spentThroughDate);
+
+        return new DailyBudgetSummary(
+                date,
+                availableAtStart,
+                spentToday,
+                balance,
+                remainingBudget
+        );
+    }
 }
