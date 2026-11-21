@@ -64,6 +64,7 @@ class BudgetCalculatorTest {
 
     @Test
     void availableAtStartOfDaySubtractsOnlyEarlierExpensesInSameMonth() {
+        // Из плана на выбранную дату вычитаются только расходы текущего месяца, совершённые до начала этого дня.
         BigDecimal budget = new BigDecimal("30000");
         LocalDate november1 = LocalDate.of(2026, 11, 1);
         LocalDate november2 = LocalDate.of(2026, 11, 2);
@@ -80,7 +81,26 @@ class BudgetCalculatorTest {
     }
 
     @Test
-    void dailySummaryAddsAllExpensesOnSelectedDate(){
+    void dailySummaryAddsAllExpensesOnSelectedDate() {
+        // Такой тест поймает две возможные ошибки: если метод учтёт только одну покупку за день или пропустит расход без отметки «обязательный».
+        BigDecimal budget = new BigDecimal("30000");
+        LocalDate november2 = LocalDate.of(2026, 11, 2);
+        LocalDate november3 = LocalDate.of(2026, 11, 3);
 
+        List<Expense> expenses = List.of(
+                new Expense(november2, new BigDecimal("700"), "Еда", true),
+                new Expense(november3, new BigDecimal("1200"), "Еда", true),
+                new Expense(november3, new BigDecimal("150"), "Еда", false)
+        );
+
+        DailyBudgetSummary expected = new DailyBudgetSummary(
+                november3,
+                new BigDecimal("2300.00"),
+                new BigDecimal("1350"),
+                new BigDecimal("950.00"),
+                new BigDecimal("27950")
+        );
+
+        assertEquals(expected, calculator.dailySummary(budget, expenses, november3));
     }
 }
