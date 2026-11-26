@@ -1,11 +1,16 @@
+package com.expensetracker;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BudgetCalculatorTest {
 
@@ -103,4 +108,43 @@ class BudgetCalculatorTest {
 
         assertEquals(expected, calculator.dailySummary(budget, expenses, november3));
     }
+
+    @Test
+    void summarizesExpensesForRequestedMonth() {
+        List<Expense> expenses = List.of(
+                new Expense(LocalDate.of(2026, 10, 31), new BigDecimal("900"), "Книги", true),
+                new Expense(LocalDate.of(2026, 11, 1),  new BigDecimal("700"), "Еда", true),
+                new Expense(LocalDate.of(2026, 11, 3),  new BigDecimal("1200"), "Еда", true),
+                new Expense(LocalDate.of(2026, 11, 3),  new BigDecimal("150"), "Еда", false),
+                new Expense(LocalDate.of(2026, 11, 30), new BigDecimal("250"), "Транспорт", true),
+                new Expense(LocalDate.of(2026, 12, 1),  new BigDecimal("400"), "Одежда", false)
+        );
+
+        MonthlyExpenseReport report =
+                calculator.monthlyExpenseReport(expenses, YearMonth.of(2026, 11));
+
+        assertEquals(0, report.totalSpent().compareTo(new BigDecimal("2300")));
+        assertEquals(0, report.mandatorySpent().compareTo(new BigDecimal("2150")));
+        assertEquals(0, report.unmarkedSpent().compareTo(new BigDecimal("150")));
+
+        assertEquals(Set.of("Еда", "Транспорт"), report.byCategory().keySet());
+        assertEquals(0, report.byCategory().get("Еда").compareTo(new BigDecimal("2050")));
+        assertEquals(0, report.byCategory().get("Транспорт").compareTo(new BigDecimal("250")));
+    }
+
+    @Test
+    void returnsZeroTotalsAndEmptyCategoriesWhenMonthHasNoExpenses() {
+        List<Expense> expenses = List.of(
+                new Expense(LocalDate.of(2026, 11, 30), new BigDecimal("250"), "Транспорт", true)
+        );
+
+        MonthlyExpenseReport report =
+                calculator.monthlyExpenseReport(expenses, YearMonth.of(2026, 12));
+
+        assertEquals(0, report.totalSpent().signum());
+        assertEquals(0, report.mandatorySpent().signum());
+        assertEquals(0, report.unmarkedSpent().signum());
+        assertTrue(report.byCategory().isEmpty());
+    }
+
 }

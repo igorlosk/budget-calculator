@@ -1,0 +1,13 @@
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "date": "2026-11-03",
+  "amount": 250,
+  "category": "Транспорт",
+  "mandatory": true
+}
+
+###
+
+GET http://localhost:8080/api/budget/daily-summary?date=2026-11-03

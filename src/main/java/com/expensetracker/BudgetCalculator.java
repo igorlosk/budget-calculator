@@ -1,3 +1,5 @@
+package com.expensetracker;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -131,4 +133,20 @@ public class BudgetCalculator {
                 remainingBudget
         );
     }
+
+    public MonthlyExpenseReport monthlyExpenseReport(List<Expense> expenses, YearMonth month){
+        LocalDate endOfMonth = month.atEndOfMonth();
+        BigDecimal totalSpent = totalSpentThroughDate(expenses, endOfMonth);
+        BigDecimal mandatorySpent = mandatorySpentThroughDate(expenses, endOfMonth);
+        Map<String, BigDecimal> totalByCategory = totalByCategoryThroughDate(expenses, endOfMonth);
+        BigDecimal unmarkedSpent = totalSpent.subtract(mandatorySpent);
+        return new MonthlyExpenseReport(
+                totalSpent,
+                mandatorySpent,
+                unmarkedSpent,
+                totalByCategory
+        );
+    }
+
+
 }
