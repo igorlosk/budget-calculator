@@ -1,9 +1,7 @@
 package com.expensetracker;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.YearMonth;
-import java.util.List;
 import java.util.Optional;
 
 public class MonthlyLevelService {
@@ -29,10 +27,11 @@ public class MonthlyLevelService {
         if (monthlyBudget.isEmpty()) {
             return currentLevel;
         }
-        BigDecimal budget = monthlyBudget.get().setScale(2, RoundingMode.HALF_EVEN);
-        List<Expense> expenseList = expenseStore.findAll();
-        MonthlyExpenseReport monthlyExpenseReport = budgetCalculator.monthlyExpenseReport(expenseList, month);
-        return userLevelCalculator.nextLevel(currentLevel, budget, monthlyExpenseReport.totalSpent());
-    }
 
+        MonthlyExpenseReport report =
+                budgetCalculator.monthlyExpenseReport(expenseStore.findAll(), month);
+
+        return userLevelCalculator.nextLevel(
+                currentLevel, monthlyBudget.get(), report.totalSpent());
+    }
 }
