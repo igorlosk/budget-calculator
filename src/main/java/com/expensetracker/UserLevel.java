@@ -1,12 +1,22 @@
 package com.expensetracker;
 
 public enum UserLevel {
-    NOVICE,
-    AMATEUR,
-    PRACTITIONER,
-    EXPERT,
-    GURU,
-    ORACLE;
+    NOVICE("Профан"),
+    AMATEUR("Любитель"),
+    PRACTITIONER("Практик"),
+    EXPERT("Эксперт"),
+    GURU("Гуру"),
+    ORACLE("Оракул");
+
+    private final String displayName;
+
+    UserLevel(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String displayName() {
+        return displayName;
+    }
 
     public UserLevel promote() {
         return switch (this) {
