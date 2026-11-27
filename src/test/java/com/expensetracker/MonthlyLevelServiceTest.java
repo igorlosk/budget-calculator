@@ -56,9 +56,11 @@ class MonthlyLevelServiceTest {
     @Test
     void promotesWhenSpendingMatchesBudgetForRequestedMonth(){
         budgetStore.save(month, new BigDecimal("250.00"));
-        expenseStore.add(new Expense(LocalDate.of(2027,3,1),
+        expenseStore.add(new Expense(month.plusMonths(1).atDay(1),
                 new BigDecimal("100"), "Food", true));
 
+        UserLevel userLevel = service.levelAfterMonth(UserLevel.AMATEUR, month);
 
+        assertEquals(UserLevel.PRACTITIONER, userLevel);
     }
 }
