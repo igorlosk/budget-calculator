@@ -25,4 +25,14 @@ public class UserLevelTest {
     void demoteNoviceToNovice() {
         assertEquals(UserLevel.NOVICE, UserLevel.NOVICE.demote());
     }
+
+    @Test
+    void returnsRussianDisplayNames(){
+        assertEquals("Профан", UserLevel.NOVICE.displayName());
+        assertEquals("Любитель", UserLevel.AMATEUR.displayName());
+        assertEquals("Практик", UserLevel.PRACTITIONER.displayName());
+        assertEquals("Эксперт", UserLevel.EXPERT.displayName());
+        assertEquals("Гуру", UserLevel.GURU.displayName());
+        assertEquals("Оракул", UserLevel.ORACLE.displayName());
+    }
 }
