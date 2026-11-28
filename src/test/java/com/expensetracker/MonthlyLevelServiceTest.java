@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MonthlyLevelServiceTest {
 
@@ -14,6 +15,7 @@ class MonthlyLevelServiceTest {
     private MonthlyBudgetStore budgetStore;
     private MonthlyLevelService service;
     private ExpenseStore expenseStore;
+    private final YearMonth april = month.plusMonths(2);
 
     @BeforeEach
     void setUp() {
@@ -67,8 +69,8 @@ class MonthlyLevelServiceTest {
         budgetStore.save(month, new BigDecimal("250.00"));
         UserLevelProgress progress = new UserLevelProgress(UserLevel.AMATEUR, service);
 
-        UserLevel firstClose = progress.closeMonth(month);
-        UserLevel secondClose = progress.closeMonth(month);
+        UserLevel firstClose = progress.closeMonth(month, april);
+        UserLevel secondClose = progress.closeMonth(month, april);
 
         assertEquals(UserLevel.PRACTITIONER, firstClose);
         assertEquals(UserLevel.PRACTITIONER, secondClose);
@@ -85,8 +87,8 @@ class MonthlyLevelServiceTest {
 
         UserLevelProgress progress = new UserLevelProgress(UserLevel.AMATEUR, service);
 
-        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month));
-        assertEquals(UserLevel.EXPERT, progress.closeMonth(march));
+        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month, april));
+        assertEquals(UserLevel.EXPERT, progress.closeMonth(march, april));
     }
 
     @Test
@@ -100,15 +102,39 @@ class MonthlyLevelServiceTest {
 
         UserLevelProgress progress = new UserLevelProgress(UserLevel.AMATEUR, service);
 
-        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month));
-        assertEquals(UserLevel.EXPERT, progress.closeMonth(march));
-        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month));
+        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month, april));
+        assertEquals(UserLevel.EXPERT, progress.closeMonth(march, april));
+        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month, april));
         assertEquals(UserLevel.EXPERT, progress.currentLevel());
     }
 
     @Test
     void newUserStartsAtNoviceLevel() {
         UserLevelProgress progress = UserLevelProgress.forNewUser(service);
+
+        assertEquals(UserLevel.NOVICE, progress.currentLevel());
+    }
+
+    @Test
+    void allowsClosingFebruaryOnlyStartingInMarch() {
+        budgetStore.save(month, new BigDecimal("250.00"));
+        UserLevelProgress progress = UserLevelProgress.forNewUser(service);
+        YearMonth march = month.plusMonths(1);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> progress.closeMonth(month, month));
+        assertEquals(UserLevel.NOVICE, progress.currentLevel());
+
+        assertEquals(UserLevel.AMATEUR, progress.closeMonth(month, march));
+    }
+
+    @Test
+    void rejectsFutureMonthWhenUsingCurrentDate() {
+        UserLevelProgress progress = UserLevelProgress.forNewUser(service);
+        YearMonth futureMonth = YearMonth.now().plusYears(1);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> progress.closeMonth(futureMonth));
 
         assertEquals(UserLevel.NOVICE, progress.currentLevel());
     }

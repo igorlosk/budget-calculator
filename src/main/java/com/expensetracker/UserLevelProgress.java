@@ -16,20 +16,28 @@ public class UserLevelProgress {
     }
 
     public UserLevel closeMonth(YearMonth month) {
+        return closeMonth(month, YearMonth.now());
+    }
+
+    public static UserLevelProgress forNewUser(MonthlyLevelService service) {
+        return new UserLevelProgress(UserLevel.NOVICE, service);
+    }
+
+    public UserLevel currentLevel() {
+        return currentLevel;
+    }
+
+    public UserLevel closeMonth(YearMonth month, YearMonth currentMonth) {
+        if (!month.isBefore(currentMonth)) {
+            throw new IllegalArgumentException("Можно закрыть только завершённый месяц");
+        }
 
         if (closedMonths.containsKey(month)) {
             return closedMonths.get(month);
         }
+
         currentLevel = service.levelAfterMonth(currentLevel, month);
         closedMonths.put(month, currentLevel);
-        return currentLevel;
-    }
-
-    public static UserLevelProgress forNewUser(MonthlyLevelService service){
-        return new UserLevelProgress(UserLevel.NOVICE, service);
-    }
-
-    public UserLevel currentLevel(){
         return currentLevel;
     }
 }
