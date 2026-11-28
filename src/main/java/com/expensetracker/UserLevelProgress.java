@@ -1,9 +1,7 @@
 package com.expensetracker;
 
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class UserLevelProgress {
 
@@ -44,5 +42,12 @@ public class UserLevelProgress {
 
     public Optional<UserLevel> levelForClosedMonth(YearMonth month) {
         return Optional.ofNullable(closedMonths.get(month));
+    }
+
+    public List<MonthlyLevelEntry> history() {
+        return closedMonths.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.reverseOrder()))
+                .map(entry -> new MonthlyLevelEntry(entry.getKey(), entry.getValue()))
+                .toList();
     }
 }

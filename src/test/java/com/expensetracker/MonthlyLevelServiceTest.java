@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -151,5 +152,25 @@ class MonthlyLevelServiceTest {
         progress.closeMonth(month, april);
 
         assertEquals(Optional.of(UserLevel.AMATEUR), progress.levelForClosedMonth(month));
+    }
+
+    @Test
+    void returnsLevelHistoryNewestMonthFirst(){
+        YearMonth march = month.plusMonths(1);
+        budgetStore.save(month, new BigDecimal("250.00"));
+        budgetStore.save(march, new BigDecimal("100.00"));
+        expenseStore.add(new Expense(
+                march.atDay(1), new BigDecimal("100"), "Еда", true
+        ));
+
+        UserLevelProgress progress = new UserLevelProgress(UserLevel.AMATEUR, service);
+
+        assertEquals(UserLevel.PRACTITIONER, progress.closeMonth(month, march));
+        assertEquals(UserLevel.EXPERT, progress.closeMonth(march, april));
+
+        assertEquals(List.of(
+                new MonthlyLevelEntry(march, UserLevel.EXPERT),
+                new MonthlyLevelEntry(month, UserLevel.PRACTITIONER)
+        ), progress.history());
     }
 }
